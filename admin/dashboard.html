@@ -1,0 +1,221 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+
+<title>Admin Dashboard</title>
+
+<style>
+
+body{
+font-family: Arial, sans-serif;
+margin:0;
+background:#f2f2f2;
+}
+
+/* Header */
+
+h2{
+background:#ff3b3b;
+color:white;
+padding:18px;
+text-align:center;
+margin:0;
+font-size:24px;
+}
+
+/* Form Card */
+
+.form-box{
+background:white;
+max-width:500px;
+margin:20px auto;
+padding:20px;
+border-radius:12px;
+box-shadow:0 5px 15px rgba(0,0,0,0.15);
+}
+
+input,select{
+width:100%;
+padding:12px;
+margin:8px 0;
+border-radius:8px;
+border:1px solid #ddd;
+font-size:14px;
+}
+
+/* Button */
+
+button{
+width:100%;
+padding:12px;
+background:#ff3b3b;
+color:white;
+border:none;
+border-radius:8px;
+font-size:16px;
+cursor:pointer;
+}
+
+button:hover{
+background:#e62e2e;
+}
+
+/* Food Grid */
+
+#foodList{
+display:grid;
+grid-template-columns:repeat(auto-fit,minmax(220px,1fr));
+gap:20px;
+padding:20px;
+}
+
+/* Food Card */
+
+.food{
+background:white;
+border-radius:12px;
+box-shadow:0 5px 15px rgba(0,0,0,0.15);
+padding:10px;
+text-align:center;
+}
+
+.food img{
+width:100%;
+height:140px;
+object-fit:cover;
+border-radius:10px;
+}
+
+.food h3{
+margin:8px 0;
+}
+
+.food p{
+margin:4px 0;
+}
+
+.food button{
+background:#333;
+margin-top:8px;
+}
+
+</style>
+
+</head>
+
+<body>
+
+<h2>Admin Dashboard</h2>
+
+<div class="form-box">
+
+<input id="foodName" placeholder="Food Name">
+
+<input id="foodPrice" placeholder="Price">
+
+<select id="foodCategory">
+<option value="Burger">Burger</option>
+<option value="Pizza">Pizza</option>
+<option value="Drinks">Drinks</option>
+<option value="Dessert">Dessert</option>
+</select>
+
+<input id="foodRating" placeholder="Rating (1-5)">
+
+<input type="file" id="foodImage">
+
+<button onclick="addFood()">Add Food</button>
+
+</div>
+
+<hr>
+
+<h3>Food List</h3>
+
+<div id="foodList"></div>
+
+<script>
+
+const API="http://localhost:3000"
+
+async function loadFoods(){
+
+let res = await fetch(API+"/foods")
+
+let data = await res.json()
+
+let list = document.getElementById("foodList")
+
+list.innerHTML=""
+
+data.forEach(food=>{
+
+list.innerHTML += `
+
+<div class="food">
+
+<img src="../${food.image}">
+
+<h3>${food.name}</h3>
+
+<p>₹${food.price}</p>
+
+<button onclick="deleteFood(${food.id})">Delete</button>
+
+</div>
+
+`
+
+})
+
+}
+
+async function addFood(){
+
+let name=document.getElementById("foodName").value
+
+let price=document.getElementById("foodPrice").value
+
+let image=document.getElementById("foodImage").files[0]
+
+let category = document.getElementById("foodCategory").value
+let rating = document.getElementById("foodRating").value
+
+let formData = new FormData()
+
+formData.append("name",name)
+formData.append("price",price)
+formData.append("image",image)
+formData.append("category",category)
+formData.append("rating",rating)
+
+await fetch(API+"/add-food",{
+
+method:"POST",
+
+body:formData
+
+})
+
+loadFoods()
+
+}
+
+async function deleteFood(id){
+
+await fetch(API+"/delete-food/"+id,{
+method:"DELETE"
+})
+
+loadFoods()
+
+}
+
+loadFoods()
+
+</script>
+
+</body>
+
+</html>

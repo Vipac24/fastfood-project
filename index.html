@@ -1,0 +1,246 @@
+f<!DOCTYPE html>
+<html lang="en">
+
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<title>Fast Food Restaurant</title>
+
+<style>
+
+body{
+font-family: Arial, sans-serif;
+margin:0;
+background:#f4f4f4;
+}
+
+header{
+background:#ff3b3b;
+color:white;
+padding:20px;
+text-align:center;
+font-size:24px;
+font-weight:bold;
+}
+
+.menu{
+padding:30px;
+text-align:center;
+}
+
+.menu h2{
+font-size:28px;
+margin-bottom:20px;
+}
+
+.menu-grid{
+display:grid;
+grid-template-columns:repeat(auto-fit,minmax(220px,1fr));
+gap:20px;
+padding:10px;
+}
+
+.menu-item{
+background:white;
+border-radius:12px;
+box-shadow:0 5px 15px rgba(0,0,0,0.1);
+padding:15px;
+transition:0.3s;
+}
+
+.menu-item:hover{
+transform:scale(1.05);
+}
+
+.menu-item img{
+width:100%;
+height:160px;
+object-fit:cover;
+border-radius:10px;
+}
+
+.menu-item h3{
+margin:10px 0 5px;
+}
+
+.price{
+color:#ff3b3b;
+font-weight:bold;
+font-size:18px;
+}
+
+body{
+font-family:Arial;
+background:#f2f2f2;
+margin:0;
+}
+
+header{
+background:#ff3d3d;
+color:white;
+padding:15px;
+font-size:22px;
+text-align:center;
+}
+
+.container{
+padding:20px;
+}
+
+input{
+width:100%;
+padding:10px;
+margin:10px 0;
+border-radius:8px;
+border:1px solid #ccc;
+}
+
+button{
+background:#ff3d3d;
+color:white;
+border:none;
+padding:10px;
+border-radius:8px;
+cursor:pointer;
+}
+
+.food{
+background:white;
+padding:10px;
+margin:10px 0;
+border-radius:10px;
+box-shadow:0 2px 6px rgba(0,0,0,0.2);
+}
+
+
+</style>
+
+</head>
+
+<body>
+
+<header>
+🍔 Fast Food Restaurant
+</header>
+
+<div style="text-align:center;margin:10px;">
+
+<button onclick="filterCategory('All')">All</button>
+<button onclick="filterCategory('Burger')">Burger</button>
+<button onclick="filterCategory('Pizza')">Pizza</button>
+<button onclick="filterCategory('Drinks')">Drinks</button>
+<button onclick="filterCategory('Dessert')">Dessert</button>
+
+</div>
+
+<input id="search" placeholder="Search food..." onkeyup="searchFood()">
+
+<section class="menu">
+
+<h2>Our Menu</h2>
+
+<div id="menuGrid" class="menu-grid">
+
+</div>
+
+</section>
+
+
+<script>
+
+const API = "/foods"
+
+async function loadMenu(){
+
+const res = await fetch(API)
+const data = await res.json()
+
+const menuGrid = document.getElementById("menuGrid")
+
+menuGrid.innerHTML=""
+
+data.forEach(item => {
+
+menuGrid.innerHTML += `
+<div class="menu-item">
+
+<img src="${item.image}" alt="food">
+
+<h3>${item.name}</h3>
+
+<p>Category: ${item.category}</p>
+
+<p style="color:gold;">⭐ ${item.rating}/5</p>
+
+<div class="price">₹${item.price}</div>
+
+</div>
+`
+
+})
+
+}
+
+function filterCategory(cat){
+
+let items=document.querySelectorAll(".menu-item")
+
+items.forEach(item=>{
+
+if(cat==="All"){
+item.style.display="block"
+}
+else if(item.innerText.includes(cat)){
+item.style.display="block"
+}
+else{
+item.style.display="none"
+}
+
+})
+
+}
+
+function searchFood(){
+
+let input=document.getElementById("search").value.toLowerCase()
+
+let items=document.querySelectorAll(".menu-item")
+
+items.forEach(item=>{
+
+let text=item.innerText.toLowerCase()
+
+if(text.includes(input)){
+item.style.display="block"
+}else{
+item.style.display="none"
+}
+
+})
+
+}
+
+async function rateFood(id){
+
+let rating=prompt("Rate this food (1-5)")
+
+await fetch("/rate/"+id,{
+method:"POST",
+headers:{
+"Content-Type":"application/json"
+},
+body:JSON.stringify({rating})
+})
+
+loadMenu()
+
+}
+
+loadMenu()
+</script>
+
+
+</body>
+</html>
